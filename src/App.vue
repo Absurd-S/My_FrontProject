@@ -15,7 +15,6 @@ import LayoutMain from './components/LayoutMain.vue'
 
 <style scoped>
 .app-container {
-  border: 5px solid red;
   display: flex;
   height: 100vh;
 }

@@ -41,8 +41,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: aqua;
-    border-right: 1px solid #000000;
+
 }
 
 .sidebar-header {
@@ -53,6 +52,7 @@
 
 .sidebar-footer {
     padding: 15px;
+
 }
 
 .sidebar-list {
@@ -80,9 +80,7 @@
 
 .history-item {
     padding: 15px 0;
-    border-bottom: 1px dashed #000000;
+    border-bottom: 1px dashed #b8b8b8;
 }
-
-
 
 </style>
