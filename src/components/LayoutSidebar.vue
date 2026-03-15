@@ -1,0 +1,88 @@
+<template>
+    <div class="sidebar-container">
+
+        <div class="sidebar-header">
+            <button class="new-chat-btn">新建对话</button>
+        </div>
+
+        <div class="sidebar-list">
+            <div class="history-item">对话记录 1</div>
+            <div class="history-item">对话记录 2</div>
+            <div class="history-item">对话记录 3</div>
+            <div class="history-item">对话记录 4</div>
+            <div class="history-item">对话记录 5</div>
+            <div class="history-item">对话记录 6</div>
+            <div class="history-item">对话记录 7</div>
+            <div class="history-item">对话记录 8</div>
+            <div class="history-item">对话记录 9</div>
+            <div class="history-item">对话记录 10</div>
+            <div class="history-item">对话记录 11</div>
+            <div class="history-item">对话记录 12</div>
+            <div class="history-item">对话记录 13</div>
+            <div class="history-item">对话记录 14</div>
+            <div class="history-item">对话记录 15</div>
+            <div class="history-item">对话记录 16</div>
+            <div class="history-item">对话记录 17</div>
+            <div class="history-item">对话记录 18</div>
+            <div class="history-item">对话记录 19</div>
+            <div class="history-item">对话记录 20</div>
+        </div>
+
+        <div class="sidebar-footer">
+            <span>账户信息</span>
+        </div>
+
+
+    </div>
+</template>
+
+<style scoped>
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: aqua;
+    border-right: 1px solid #000000;
+}
+
+.sidebar-header {
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sidebar-footer {
+    padding: 15px;
+}
+
+.sidebar-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 15px;
+}
+
+.new-chat-btn {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    border: 0 solid transparent;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px 1px rgb(196, 196, 196);
+    transition: all 0.2s ease; 
+}
+
+.new-chat-btn:hover {
+    background: #ffffff;
+    box-shadow: 0 3px 5px 3px rgb(196, 196, 196);
+    transform: translateY(-0.2px);
+}
+
+.history-item {
+    padding: 15px 0;
+    border-bottom: 1px dashed #000000;
+}
+
+
+
+</style>
