@@ -61,6 +61,8 @@
     padding: 0 15px;
 }
 
+/** 新建对话按钮样式 */
+/** 样式参考自https://neumorphism.io */
 .new-chat-btn {
     width: 100%;
     padding: 10px;
@@ -72,10 +74,17 @@
     transition: all 0.2s ease; 
 }
 
+/** 新建对话按钮鼠标悬停样式 */
 .new-chat-btn:hover {
     background: #ffffff;
     box-shadow: 0 3px 5px 3px rgb(196, 196, 196);
     transform: translateY(-0.2px);
+}
+
+/** 新建对话按钮鼠标按下样式 */
+.new-chat-btn:active {
+    background: #ffffff;
+    box-shadow: inset 0 3px 5px 3px rgb(196, 196, 196);
 }
 
 .history-item {
