@@ -20,8 +20,51 @@ const function_name = () => {
     // 函数体
 }
 
+// =============================对话函数=====================================
 const isGenerating = ref(false);  // 定义一个状态锁，在生成消息时设置为true，防止重复点击发送按钮。默认为false
 
+let typingTimer = null;  // 定时器开关
+
+// 拆分出AI回复函数
+const aiGenerate = async () => { 
+    // 空消息列表
+    const currentAiReply = {
+        id: Date.now(),
+        role: 'ai',
+        content: ""
+    };
+
+    // 把这个空回复添加到消息列表中，这样就有一个空的AI回复框，貌似ai在思考的感觉
+    messageList.value.push(currentAiReply);
+
+    // 模拟一个ai回复内容
+    const aiReply = '你好！很高兴见到你！😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？';
+    
+    // 模拟打字机效果，逐字更新AI回复内容
+    let currentContent = "";  // 定义一个变量来存储当前AI回复的内容
+    let index = 0;  // 索引变量
+
+    // 定义一个定时器，每隔50ms更新一个字符
+    typingTimer = setInterval(async() => {
+        // 每次更新消息列表，追加当前的AI回复内容，这样就能实现逐字显示的效果
+
+        if (index < aiReply.length) {
+            const lastIndex = messageList.value.length - 1;  // 获取消息列表中最后一个元素的索引，也就是当前AI回复的索引
+            messageList.value[lastIndex].content += aiReply[index];  // 将当前字符添加到内容中
+            index++;  // 索引递增
+
+            // 等待 DOM 更新完成
+            await nextTick();  
+            // 滚动到底部
+            if (scrollBottom.value) {
+                scrollBottom.value.scrollTop = scrollBottom.value.scrollHeight;
+            }
+        } else {
+            clearInterval(timer);  // 回复完成后，清除定时器
+            isGenerating.value = false;  // 回复完成后，重置状态锁，允许发送下一条消息
+        }
+    },60)  // 每隔60ms更新一个字符
+}
 // 发送消息的函数，模仿真实聊天
 const sendMessage = async () => {
 
@@ -51,50 +94,33 @@ const sendMessage = async () => {
         scrollBottom.value.scrollTop = scrollBottom.value.scrollHeight
     }
 
-    
+    // 调用AI回复函数
+    aiGenerate();
 
-
-    // 定义一个间隔回复函数，来实现ai回复时的打字机效果。
-
-    // 空消息列表
-    const currentAiReply = {
-        id: Date.now(),
-        role: 'ai',
-        content: ""
-    };
-
-    // 把这个空回复添加到消息列表中，这样就有一个空的AI回复框，貌似ai在思考的感觉
-    messageList.value.push(currentAiReply);
-
-    // 模拟一个ai回复内容
-    const aiReply = '你好！很高兴见到你！😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？';
-    
-    // 模拟打字机效果，逐字更新AI回复内容
-    let currentContent = "";  // 定义一个变量来存储当前AI回复的内容
-    let index = 0;  // 索引变量
-
-    // 定义一个定时器，每隔50ms更新一个字符
-    const timer = setInterval(async() => {
-        // 每次更新消息列表，追加当前的AI回复内容，这样就能实现逐字显示的效果
-
-        if (index < aiReply.length) {
-            const lastIndex = messageList.value.length - 1;  // 获取消息列表中最后一个元素的索引，也就是当前AI回复的索引
-            messageList.value[lastIndex].content += aiReply[index];  // 将当前字符添加到内容中
-            index++;  // 索引递增
-
-            // 等待 DOM 更新完成
-            await nextTick();  
-            // 滚动到底部
-            if (scrollBottom.value) {
-                scrollBottom.value.scrollTop = scrollBottom.value.scrollHeight;
-            }
-        } else {
-            clearInterval(timer);  // 回复完成后，清除定时器
-            isGenerating.value = false;  // 回复完成后，重置状态锁，允许发送下一条消息
-        }
-    },60)  // 每隔60ms更新一个字符
 }
-//=====================还有问题，为什么自动回复消息后不会滚动？================================
+
+// 重新生成函数
+const reGenerate = () => { 
+    aiGenerate();
+}
+// 停止函数
+const stopGenerating = () => {
+    if (typingTimer) {
+        clearInterval(typingTimer);  // 停止打字机效果
+        typingTimer = null;  // 重置定时器
+        isGenerating.value = false;  // 重置状态锁，允许发送下条消息
+    }
+}
+// 复制函数
+const copyToClipboard = async (text) => {
+    try {
+    // 呼叫浏览器的剪贴板 API
+    await navigator.clipboard.writeText(text);
+    console.log("复制成功");
+    } catch (err) {
+        console.error("复制失败：", err);
+    }
+}
 </script>
 
 
@@ -119,8 +145,27 @@ const sendMessage = async () => {
             </div>
 
 
-            <div v-for="msg in messageList" :key="msg.id" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">{{ msg.content }}</div>
+            <!-- <div v-for="msg in messageList" :key="msg.id" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">{{ msg.content }}</div> -->
             <!-- v-for列表渲染 循环遍历 messageList 数组，并且根据消息role的不同匹配相应的类名，进而匹配不同的样式 -->
+            <div v-for="msg in messageList" :key="msg.id" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">
+                <div class="content-text">{{ msg.content }}</div>
+                
+                <!-- 添加一个操作栏，用于复制、点赞、踩、刷新 -->
+                <div class="action-bar" v-if="msg.role === 'ai'">
+
+                    <!-- 复制按钮 -->
+                    <button @click="copyToClipboard(msg.content)"><ion-icon name="copy-outline"></ion-icon></button>
+
+                    <!-- 点赞按钮 -->
+                    <button><ion-icon name="thumbs-up-outline"></ion-icon></button>
+
+                    <!-- 点踩按钮 -->
+                    <button><ion-icon name="thumbs-down-outline"></ion-icon></button>
+
+                    <!-- 刷新按钮 -->
+                    <button @click="reGenerate"><ion-icon name="reload-sharp"></ion-icon></button>
+                </div>
+            </div>
 
         </div>
 
@@ -128,7 +173,7 @@ const sendMessage = async () => {
             <div class="input-area">
                 <textarea @keyup.enter.prevent="sendMessage" v-model="userInput" class="input-text" placeholder="给 DeepSeek 发送信息"></textarea>
                 <!-- 绑定回车事件，并且增加 v-model双向数据绑定 -->
-                <button @click="sendMessage" class="send-btn" :disabled="isGenerating">{{ isGenerating ? 'AI回复中...' : '发送' }}</button>
+                <button @click="!isGenerating ? sendMessage(): stopGenerating()" class="send-btn" >{{ isGenerating ? '停止生成' : '发送' }}</button>
                 <!-- 绑定点击事件，并且增加响应式数据，根据状态锁的值来决定按钮的文字和样式 -->
             </div>
         </div>
@@ -232,9 +277,6 @@ const sendMessage = async () => {
     transform: translateY(0.2px);
 }
 
-.send-btn:disabled {
-    background: #d1e1fa;
-}
 
 /** 欢迎界面样式 */
 .welcomeBox {
@@ -245,5 +287,16 @@ const sendMessage = async () => {
     padding: 20px;
 }
 
+.action-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.action-bar button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
 </style>
 
