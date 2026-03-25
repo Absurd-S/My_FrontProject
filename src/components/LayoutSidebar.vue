@@ -4,6 +4,8 @@ const handleNewChat = () => {
     emit('create-new'); // 向外大喊一声："create-new" 触发啦！
 }
 
+// 对话数据历史记录
+import { chatHistoryList, activeChatId } from '../store.js'
 </script>
 
 <template>
@@ -14,26 +16,11 @@ const handleNewChat = () => {
         </div>
 
         <div class="sidebar-list">
-            <div class="history-item">对话记录 1</div>
-            <div class="history-item">对话记录 2</div>
-            <div class="history-item">对话记录 3</div>
-            <div class="history-item">对话记录 4</div>
-            <div class="history-item">对话记录 5</div>
-            <div class="history-item">对话记录 6</div>
-            <div class="history-item">对话记录 7</div>
-            <div class="history-item">对话记录 8</div>
-            <div class="history-item">对话记录 9</div>
-            <div class="history-item">对话记录 10</div>
-            <div class="history-item">对话记录 11</div>
-            <div class="history-item">对话记录 12</div>
-            <div class="history-item">对话记录 13</div>
-            <div class="history-item">对话记录 14</div>
-            <div class="history-item">对话记录 15</div>
-            <div class="history-item">对话记录 16</div>
-            <div class="history-item">对话记录 17</div>
-            <div class="history-item">对话记录 18</div>
-            <div class="history-item">对话记录 19</div>
-            <div class="history-item">对话记录 20</div>
+
+            <!-- 从对话记录列表里面渲染序列 -->
+            <div class="history-item" v-for="session in chatHistoryList" :key="session.id">
+                {{ session.title }}
+            </div>
         </div>
 
         <div class="sidebar-footer">
