@@ -5,8 +5,16 @@ const handleNewChat = () => {
     activeChatId.value = null
 }
 
-// 对话数据历史记录
-
+// 删除对话
+const deleteChat = (index, id) => {
+    // 这里的 index 现在就是准确的 0, 1, 2, 3... 了
+    chatHistoryList.value.splice(index, 1);
+    
+    // 如果删掉的是正在聊的，就回到欢迎页
+    if (activeChatId.value === id) {
+        activeChatId.value = null;
+    }
+}
 </script>
 
 <template>
@@ -20,8 +28,9 @@ const handleNewChat = () => {
 
             <!-- 从对话记录列表里面渲染序列 -->
             <!-- 点击时渲染对应对话记录 -->
-            <div class="history-item" v-for="session in chatHistoryList" :key="session.id" @click="activeChatId = session.id" :class="{ 'active-item': activeChatId === session.id }">
-                {{ session.title }}
+            <div class="history-item" v-for="(session, index) in chatHistoryList" :key="session.id" @click="activeChatId = session.id" :class="{ 'active-item': activeChatId === session.id }">
+                <span class="title-text">{{ session.title }}</span>
+                <span class="delete-btn" @click.stop="deleteChat(index, session.id)">🗑️</span>
             </div>
         </div>
 
@@ -116,4 +125,29 @@ const handleNewChat = () => {
     transform: translateX(5px); 
 }
 
+
+/** 删除按钮样式 */
+.history-item {
+  /* 你的原有样式保持不变，新增一行相对定位，为了让删除按钮绝对定位 */
+    position: relative; 
+    display: flex;
+    justify-content: space-between; /* 让标题和按钮分居左右 */
+    align-items: center;
+}
+
+.delete-btn {
+    opacity: 0; /* 默认完全透明（隐藏） */
+    transition: opacity 0.2s ease;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.delete-btn:hover {
+    background-color: #ffcccc; /* 鼠标放在垃圾桶上时的危险色提示 */
+}
+
+/* 核心魔法：当鼠标悬浮在 history-item 上时，它内部的 delete-btn 变成不透明 */
+.history-item:hover .delete-btn {
+    opacity: 1; 
+}
 </style>
