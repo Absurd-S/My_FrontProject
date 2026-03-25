@@ -1,8 +1,16 @@
+<script setup>
+const emit = defineEmits(['create-new']);
+const handleNewChat = () => {
+    emit('create-new'); // 向外大喊一声："create-new" 触发啦！
+}
+
+</script>
+
 <template>
     <div class="sidebar-container">
 
         <div class="sidebar-header">
-            <button class="new-chat-btn">新建对话</button>
+            <button @click="handleNewChat" class="new-chat-btn">新建对话</button>
         </div>
 
         <div class="sidebar-list">

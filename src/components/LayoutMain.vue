@@ -27,6 +27,10 @@ let typingTimer = null;  // 定时器开关
 
 // 拆分出AI回复函数
 const aiGenerate = async () => { 
+
+    // 状态锁设置为true，防止重复点击发送按钮
+    isGenerating.value = true;
+
     // 空消息列表
     const currentAiReply = {
         id: Date.now(),
@@ -60,7 +64,7 @@ const aiGenerate = async () => {
                 scrollBottom.value.scrollTop = scrollBottom.value.scrollHeight;
             }
         } else {
-            clearInterval(timer);  // 回复完成后，清除定时器
+            clearInterval(typingTimer);  // 回复完成后，清除定时器
             isGenerating.value = false;  // 回复完成后，重置状态锁，允许发送下一条消息
         }
     },60)  // 每隔60ms更新一个字符
@@ -100,7 +104,22 @@ const sendMessage = async () => {
 }
 
 // 重新生成函数
-const reGenerate = () => { 
+const reGenerate = () => {
+    // 如果正在生成消息，直接返回，防止重复点击发送按钮
+    if (isGenerating.value) return;
+
+    // 删掉旧的消息，只保留当前AI回复
+    if (messageList.value.length === 0) return;
+    // 获取消息列表最后一个元素序数，即当前回复的序数
+    const lastIndex = messageList.value.length - 1;
+    // 获取当前回复的消息内容
+    const lastMessage = messageList.value[lastIndex];
+    // 如果当前回复是AI回复，才删除
+    if (lastMessage.role === 'ai') {
+        messageList.value.pop();
+    }
+
+    // 调用AI回复函数
     aiGenerate();
 }
 // 停止函数
@@ -205,7 +224,7 @@ const copyToClipboard = async (text) => {
 
 .message-user {
     align-self: flex-end;
-    background-color: #cbe4fc;
+    background-color: #d8e9f9;
     padding: 10px 15px;
     border-radius: 20px;
     max-width: 70%;
@@ -213,7 +232,7 @@ const copyToClipboard = async (text) => {
 
 .message-ai {
     align-self: flex-start;
-    background-color: #d1d1d1;
+    background-color: #ececec;
     padding: 10px 15px;
     border-radius: 20px;
     max-width: 70%;
