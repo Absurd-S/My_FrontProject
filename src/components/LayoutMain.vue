@@ -9,6 +9,17 @@ import { ref, nextTick, computed } from 'vue';
 
 import { chatHistoryList, activeChatId } from '../store.js';
 
+/**导入marked库，用于将Markdown格式转换为HTML格式 */
+import { marked } from 'marked';
+
+// 接收一段 Markdown 纯文本，返回翻译好的 HTML 字符串
+const renderMarkdown = (text) => {
+    // 如果文本为空，直接返回空
+    if (!text) return '';
+    // 调用 marked 的核心翻译功能
+    return marked.parse(text);
+}
+
 // 定义响应式变量
 const userInput = ref('')
 
@@ -52,7 +63,7 @@ const aiGenerate = async () => {
     // 把这个空回复添加到消息列表中，这样就有一个空的AI回复框，貌似ai在思考的感觉
 
     // 模拟一个ai回复内容
-    const aiReply = '你好！很高兴见到你！😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？';
+    const aiReply = '你好！**很高兴见到你！**😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？';
     
     // 模拟打字机效果，逐字更新AI回复内容
     let currentContent = "";  // 定义一个变量来存储当前AI回复的内容
@@ -194,7 +205,12 @@ const giveFeedback = (type) => {
 
             <!-- v-for列表渲染 循环遍历 messageList 数组，并且根据消息role的不同匹配相应的类名，进而匹配不同的样式 -->
             <div class="message-row" v-for="msg in currentMessageList" :key="msg.id" :class="msg.role === 'user' ? 'row-user' : 'row-ai'">
-                <div class="content-text" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">{{ msg.content }}</div>
+                
+                <div v-if="msg.role === 'user'" class="content-text message-user">
+                    {{ msg.content }}
+                </div>
+
+                <div v-else class="content-text message-ai" v-html="renderMarkdown(msg.content)"></div>
                 
                 <!-- 添加一个操作栏，用于复制、点赞、踩、刷新 -->
                 <div class="action-bar" v-if="msg.role === 'ai'">
