@@ -154,14 +154,19 @@ const stopGenerating = () => {
     }
 }
 // 复制函数
-const copyToClipboard = async (text) => {
+const copyMessage = async (text) => {
     try {
-    // 呼叫浏览器的剪贴板 API
-    await navigator.clipboard.writeText(text);
-    console.log("复制成功");
+        await navigator.clipboard.writeText(text);
+        alert('复制成功啦！'); // 这里为了简单使用了原生 alert，真实项目中通常用消息 Message 组件
     } catch (err) {
-        console.error("复制失败：", err);
+        alert('复制失败，请手动复制');
     }
+}
+
+// 占位函数，方便你以后扩展
+const giveFeedback = (type) => {
+    if (type === 'like') alert('感谢您的点赞支持！');
+    if (type === 'dislike') alert('我们会继续努力改进！');
 }
 </script>
 
@@ -187,22 +192,21 @@ const copyToClipboard = async (text) => {
             </div>
 
 
-            <!-- <div v-for="msg in messageList" :key="msg.id" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">{{ msg.content }}</div> -->
             <!-- v-for列表渲染 循环遍历 messageList 数组，并且根据消息role的不同匹配相应的类名，进而匹配不同的样式 -->
-            <div v-for="msg in currentMessageList" :key="msg.id" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">
-                <div class="content-text">{{ msg.content }}</div>
+            <div class="message-row" v-for="msg in currentMessageList" :key="msg.id" :class="msg.role === 'user' ? 'row-user' : 'row-ai'">
+                <div class="content-text" :class="msg.role === 'user' ? 'message-user' : 'message-ai'">{{ msg.content }}</div>
                 
                 <!-- 添加一个操作栏，用于复制、点赞、踩、刷新 -->
                 <div class="action-bar" v-if="msg.role === 'ai'">
 
                     <!-- 复制按钮 -->
-                    <button @click="copyToClipboard(msg.content)"><ion-icon name="copy-outline"></ion-icon></button>
+                    <button @click="copyMessage(msg.content)"><ion-icon name="copy-outline"></ion-icon></button>
 
                     <!-- 点赞按钮 -->
-                    <button><ion-icon name="thumbs-up-outline"></ion-icon></button>
+                    <button @click="giveFeedback('like')"><ion-icon name="thumbs-up-outline"></ion-icon></button>
 
                     <!-- 点踩按钮 -->
-                    <button><ion-icon name="thumbs-down-outline"></ion-icon></button>
+                    <button @click="giveFeedback('dislike')"><ion-icon name="thumbs-down-outline"></ion-icon></button>
 
                     <!-- 刷新按钮 -->
                     <button @click="reGenerate"><ion-icon name="reload-sharp"></ion-icon></button>
@@ -245,20 +249,42 @@ const copyToClipboard = async (text) => {
     overflow-y: auto;
 }
 
-.message-user {
+
+
+/** 消息行样式 */
+.message-row {
+    display: flex;
+    flex-direction: column;
+    margin: 15px;
+    max-width: 80%;
+}
+/** 用户消息行样式 */
+.row-user {
     align-self: flex-end;
-    background-color: #d8e9f9;
-    padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 70%;
+    align-items: flex-end;
+}
+/** AI消息行样式 */
+.row-ai {
+    align-self: flex-start;
+    align-items: flex-start;
 }
 
+/** 聊天气泡样式 */
+/** 用户消息样式 */
+.message-user {
+    background-color: #d8e9f9;
+    padding: 10px 15px;
+    border-radius: 20px 20px 0 20px;
+    word-break: break-word; /* 防止一长串英文字母不换行把屏幕撑破 */
+    white-space: pre-wrap; /* 完美识别你在输入框里敲的回车换行 */
+}
+/** AI消息样式 */
 .message-ai {
-    align-self: flex-start;
     background-color: #ececec;
     padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 70%;
+    border-radius: 20px 20px 20px 0;
+    word-break: break-word; /*防止一长串英文字母不换行把屏幕撑破 */
+    white-space: pre-wrap; /* 完美识别你在输入框里敲的回车换行 */
 }
 
 /** 输入框样式 */
@@ -332,13 +358,21 @@ const copyToClipboard = async (text) => {
 .action-bar {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-left: 10px;
 }
+
 .action-bar button {
     background: transparent;
     border: none;
     cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
     font-size: 20px;
+}
+
+.action-bar button:hover {
+  opacity: 1; /* 鼠标悬浮时图标变亮 */
 }
 </style>
 

@@ -30,7 +30,7 @@ const deleteChat = (index, id) => {
             <!-- 点击时渲染对应对话记录 -->
             <div class="history-item" v-for="(session, index) in chatHistoryList" :key="session.id" @click="activeChatId = session.id" :class="{ 'active-item': activeChatId === session.id }">
                 <span class="title-text">{{ session.title }}</span>
-                <span class="delete-btn" @click.stop="deleteChat(index, session.id)">🗑️</span>
+                <span class="delete-btn" @click.stop="deleteChat(index, session.id)"><ion-icon name="trash-outline"></ion-icon></span>
             </div>
         </div>
 
@@ -93,8 +93,8 @@ const deleteChat = (index, id) => {
     box-shadow: inset 0 3px 5px 3px rgb(196, 196, 196);
 }
 
-
-/* 基础样式：准备好动画过渡 */
+/** 历史对话列表样式 */
+/** 基础样式：准备好动画过渡 */
 .history-item {
     padding: 12px 15px;
     margin-bottom: 10px;
@@ -105,18 +105,18 @@ const deleteChat = (index, id) => {
     transition: all 0.1s ease; /* 关键：让所有的状态变化都有 0.3 秒的平滑过渡 */
 }
 
-/* 状态 1：鼠标悬停时 (Hover) */
+/** 鼠标悬停时样式 */
 .history-item:hover {
     background-color: #f0f4f9;
     transform: translateX(5px); /* 微微向右浮动，引导用户点击，手感极佳 */
 }
 
-/* 状态 2：鼠标按下时 (Active) */
+/** 鼠标按下样式 */
 .history-item:active {
     background: #ffffff;
 }
 
-/* 状态 3：当前选中的高亮状态 */
+/** 当前选中的高亮状态 */
 .active-item {
     background-color: #e3f2fd; /* 给一个淡淡的主题色背景 */
     font-weight: bold;
@@ -143,11 +143,12 @@ const deleteChat = (index, id) => {
 }
 
 .delete-btn:hover {
-    background-color: #ffcccc; /* 鼠标放在垃圾桶上时的危险色提示 */
+    background-color: #f16767; /* 鼠标放在垃圾桶上时的危险色提示 */
 }
 
-/* 核心魔法：当鼠标悬浮在 history-item 上时，它内部的 delete-btn 变成不透明 */
+/** 鼠标悬停时，让删除按钮显示 */
 .history-item:hover .delete-btn {
     opacity: 1; 
 }
 </style>
+
