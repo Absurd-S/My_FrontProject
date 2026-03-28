@@ -12,13 +12,27 @@ import { chatHistoryList, activeChatId } from '../store.js';
 /**导入marked库，用于将Markdown格式转换为HTML格式 */
 import { marked } from 'marked';
 
-// 接收一段 Markdown 纯文本，返回翻译好的 HTML 字符串
+// 接收一段 Markdown 纯文本，返回转换好的 HTML 字符串
 const renderMarkdown = (text) => {
     // 如果文本为空，直接返回空
     if (!text) return '';
-    // 调用 marked 的核心翻译功能
+    // 返回转换后的文本
     return marked.parse(text);
 }
+
+// 获取文本框的 DOM 引用
+const textareaRef = ref(null);
+
+// 自动调整高度函数
+const autoResize = () => {
+    const textarea = textareaRef.value;
+    if (!textarea) return;
+
+    textarea.style.height = 'auto';
+    
+    // 高度设置为文本实际高度
+    textarea.style.height = textarea.scrollHeight + 'px';
+};
 
 // 定义响应式变量
 const userInput = ref('')
@@ -60,18 +74,17 @@ const aiGenerate = async () => {
     const session = chatHistoryList.value.find(s => s.id === activeChatId.value);
     session.messages.push(currentAiReply); // 把 AI 占座气泡推入当前会话
 
-    // 把这个空回复添加到消息列表中，这样就有一个空的AI回复框，貌似ai在思考的感觉
+    // 先空回复，貌似ai在思考
 
     // 模拟一个ai回复内容
-    const aiReply = '你好！**很高兴见到你！**😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？';
+    const aiReply = ` 你好！**很高兴见到你！**😊我是DeepSeek，随时准备帮助你解答问题、提供建议，或者只是陪你聊聊天。无论你有什么需求——学习、工作、生活，还是单纯想找个人说说话，我都在这里！今天有什么我可以帮你的吗？ `;
     
     // 模拟打字机效果，逐字更新AI回复内容
-    let currentContent = "";  // 定义一个变量来存储当前AI回复的内容
     let index = 0;  // 索引变量
 
     // 定义一个定时器，每隔50ms更新一个字符
     typingTimer = setInterval(async() => {
-        // 每次更新消息列表，追加当前的AI回复内容，这样就能实现逐字显示的效果
+        // 每次更新消息列表，追加当前的AI回复内容，实现逐字显示的效果
 
         if (index < aiReply.length) {
             const lastIndex = session.messages.length - 1;  // 获取消息列表中最后一个元素的索引，也就是当前AI回复的索引
@@ -105,11 +118,17 @@ const sendMessage = async () => {
     const currentText = userInput.value;
     userInput.value = ''; // 清空输入框
 
-    // 如果是新对话（没有激活的 ID），必须先建档
+    // 删除文本后
+    await nextTick();
+    if (textareaRef.value) {
+        textareaRef.value.style.height = 'auto'; 
+    }
+
+    // 如果是新对话，则记录
     if (!activeChatId.value) {
         const newSession = {
             id: Date.now(),
-            title: currentText.substring(0, 10), // 截取用户前 10 个字当做侧边栏标题
+            title: currentText.substring(0, 10), // 截取用户消息前 10 个字当做标题
             messages: []
         };
         chatHistoryList.value.unshift(newSession); // unshift 把新对话塞到数组最前面（顶部）
@@ -168,16 +187,16 @@ const stopGenerating = () => {
 const copyMessage = async (text) => {
     try {
         await navigator.clipboard.writeText(text);
-        alert('复制成功啦！'); // 这里为了简单使用了原生 alert，真实项目中通常用消息 Message 组件
+        alert('复制成功啦！'); // 复制提示
     } catch (err) {
         alert('复制失败，请手动复制');
     }
 }
 
-// 占位函数，方便你以后扩展
+// 反馈函数
 const giveFeedback = (type) => {
-    if (type === 'like') alert('感谢您的点赞支持！');
-    if (type === 'dislike') alert('我们会继续努力改进！');
+    if (type === 'like') alert('感谢点赞！');
+    if (type === 'dislike') alert('感谢反馈！');
 }
 </script>
 
@@ -233,8 +252,8 @@ const giveFeedback = (type) => {
 
         <div class="chat-input">
             <div class="input-area">
-                <textarea @keyup.enter.prevent="sendMessage" v-model="userInput" class="input-text" placeholder="给 DeepSeek 发送信息"></textarea>
-                <!-- 绑定回车事件，并且增加 v-model双向数据绑定 -->
+                <textarea ref="textareaRef" @input="autoResize" @keydown.enter.exact.prevent="sendMessage" v-model="userInput" class="input-text" placeholder="给 DeepSeek 发送信息" rows="1"></textarea>
+                <!-- 自动提高输入框高度，绑定回车事件，并且增加 v-model双向数据绑定 -->
                 <button @click="!isGenerating ? sendMessage(): stopGenerating()" class="send-btn" >{{ isGenerating ? '停止生成' : '发送' }}</button>
                 <!-- 绑定点击事件，并且增加响应式数据，根据状态锁的值来决定按钮的文字和样式 -->
             </div>
@@ -291,28 +310,31 @@ const giveFeedback = (type) => {
     background-color: #d8e9f9;
     padding: 10px 15px;
     border-radius: 20px 20px 0 20px;
-    word-break: break-word; /* 防止一长串英文字母不换行把屏幕撑破 */
-    white-space: pre-wrap; /* 完美识别你在输入框里敲的回车换行 */
+    word-break: break-word; /* 自动换行 */
+    white-space: pre-wrap; /* 保留换行 */
 }
 /** AI消息样式 */
 .message-ai {
     background-color: #ececec;
     padding: 10px 15px;
     border-radius: 20px 20px 20px 0;
-    word-break: break-word; /*防止一长串英文字母不换行把屏幕撑破 */
-    white-space: pre-wrap; /* 完美识别你在输入框里敲的回车换行 */
+    word-break: break-word; /* 自动换行 */
+    white-space: pre-wrap; /* 保留换行 */
 }
 
 /** 输入框样式 */
 /** 样式参考自https://neumorphism.io */
 .chat-input {
-    height: 15%;
-    margin: 30px  40px ;
+    width: 70%;
+    max-width: 800px;
+    min-height: 100px;
+    margin: 20px  auto ;
     padding: 20px;
     border-radius: 35px;
     background: #ffffff;
     box-shadow: 15px 15px 45px #bebebe,
                 -8px -8px 24px #ffffff;
+    flex-shrink: 0;
 }
 
 .input-area {
@@ -331,6 +353,7 @@ const giveFeedback = (type) => {
     max-height: 150px;  /** 对话框最大高度 */
     overflow-y: auto;   /** 可以滚动内容 */
     font-size: 20px;
+    transition: height 0.1s ease;
 
 }
 
