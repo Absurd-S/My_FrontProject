@@ -7,7 +7,6 @@ const handleNewChat = () => {
 
 // 删除对话
 const deleteChat = (index, id) => {
-    // 这里的 index 现在就是准确的 0, 1, 2, 3... 了
     chatHistoryList.value.splice(index, 1);
     
     // 如果删掉的是正在聊的，就回到欢迎页
@@ -94,7 +93,6 @@ const deleteChat = (index, id) => {
 }
 
 /** 历史对话列表样式 */
-/** 基础样式：准备好动画过渡 */
 .history-item {
     padding: 12px 15px;
     margin-bottom: 10px;
@@ -102,13 +100,13 @@ const deleteChat = (index, id) => {
     border-radius: 10px;
     cursor: pointer;
     background-color: transparent;
-    transition: all 0.1s ease; /* 关键：让所有的状态变化都有 0.3 秒的平滑过渡 */
+    transition: all 0.1s ease;
 }
 
 /** 鼠标悬停时样式 */
 .history-item:hover {
     background-color: #f0f4f9;
-    transform: translateX(5px); /* 微微向右浮动，引导用户点击，手感极佳 */
+    transform: translateX(5px); 
 }
 
 /** 鼠标按下样式 */
@@ -118,17 +116,15 @@ const deleteChat = (index, id) => {
 
 /** 当前选中的高亮状态 */
 .active-item {
-    background-color: #e3f2fd; /* 给一个淡淡的主题色背景 */
+    background-color: #e3f2fd;
     font-weight: bold;
     color: #1a73e8;
-    /* 就算鼠标离开，选中的项目也保持稍微向右突出的状态 */
     transform: translateX(5px); 
 }
 
 
 /** 删除按钮样式 */
 .history-item {
-  /* 你的原有样式保持不变，新增一行相对定位，为了让删除按钮绝对定位 */
     position: relative; 
     display: flex;
     justify-content: space-between; /* 让标题和按钮分居左右 */
@@ -143,7 +139,7 @@ const deleteChat = (index, id) => {
 }
 
 .delete-btn:hover {
-    background-color: #f16767; /* 鼠标放在垃圾桶上时的危险色提示 */
+    background-color: #f16767;
 }
 
 /** 鼠标悬停时，让删除按钮显示 */
